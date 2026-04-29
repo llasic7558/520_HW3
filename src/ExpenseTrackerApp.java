@@ -1,4 +1,5 @@
 import controller.ExpenseTrackerController;
+import org.tinylog.Logger;
 
 
 /**
@@ -7,9 +8,9 @@ import controller.ExpenseTrackerController;
 public class ExpenseTrackerApp {
 
   public static void main(String[] args) {
-    
-    // Create MVC components
-	ExpenseTrackerController controller = new ExpenseTrackerController();
+    Logger.info("Starting Expense Tracker application");
+    new ExpenseTrackerController();
+    Logger.info("Expense Tracker application initialized");
   }
 
 }
