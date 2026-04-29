@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.tinylog.Logger;
+
 
 public class CSVImporter implements CSVConstants {
 	public List<Transaction> importTransactions(String inputFileName) throws IOException {
 		List<Transaction> importedTransactionsList = null;
 		if (inputFileName != null) {	
+			Logger.debug("Import started file={}", inputFileName);
 			BufferedReader reader = new BufferedReader(new FileReader(inputFileName));
 			importedTransactionsList = new ArrayList<Transaction>();
 			
@@ -32,6 +35,10 @@ public class CSVImporter implements CSVConstants {
 			}
 
 			reader.close();
+			Logger.info("Import completed file={} transactionCount={}", inputFileName, importedTransactionsList.size());
+		}
+		else {
+			Logger.warn("Import skipped because the input file name was null");
 		}
 		
 		return importedTransactionsList;
