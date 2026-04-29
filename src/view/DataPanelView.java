@@ -12,6 +12,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
+import org.tinylog.Logger;
+
 import model.ExpenseTrackerModel;
 import model.Transaction;
 
@@ -128,5 +130,11 @@ public class DataPanelView extends JPanel {
 
 		// Fire table update
 		transactionsTable.updateUI();
+		Logger.debug(
+			"Data panel refreshed displayedTransactionRows={} displayedTableRows={} totalCost={}",
+			transactions.size(),
+			transactionsModel.getRowCount(),
+			model.computeTransactionsTotalCost()
+		);
 	}  
 }
