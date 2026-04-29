@@ -4,6 +4,8 @@ package view;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import org.tinylog.Logger;
+
 import model.ExpenseTrackerModel;
 import model.Transaction;
 
@@ -77,6 +79,8 @@ public class ExpenseTrackerView extends JFrame {
     analysisPanelView = new AnalysisPanelView();
     tabbedPanel.add("Data", dataPanelView);
     tabbedPanel.add("Analyis", analysisPanelView);
+    tabbedPanel.addChangeListener(e ->
+        Logger.debug("Tab changed selectedIndex={}", tabbedPanel.getSelectedIndex()));
     add(tabbedPanel);
   
     // Set frame properties
@@ -84,12 +88,14 @@ public class ExpenseTrackerView extends JFrame {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     refresh();
     setVisible(true);
+    Logger.info("Expense tracker view initialized");
   
   }
   
   public String showFileChooser(boolean isOpenFile) {
 	JFileChooser chooser = new JFileChooser();
 	int result = -1;
+	Logger.debug("Showing {} file chooser", isOpenFile ? "open" : "save");
 	if (isOpenFile) {
 		result = chooser.showOpenDialog(this);
 	}
@@ -101,12 +107,15 @@ public class ExpenseTrackerView extends JFrame {
 	  if (!path.toLowerCase().endsWith(".csv")) {
 	    path = path + ".csv";
 	  }
+	  Logger.info("File chooser selected path={}", path);
 	  return path;
 	}
+	Logger.debug("File chooser canceled");
 	return null;
   }
   
   public void displayErrorMessage(String message) {
+    Logger.warn("Displaying error dialog message={}", message);
     JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
   } 
 
@@ -114,6 +123,10 @@ public class ExpenseTrackerView extends JFrame {
     // Pass to views
     dataPanelView.refreshTable(model);
     analysisPanelView.setVisible(model);
+    Logger.debug(
+        "View refreshed transactionCount={} totalCost={}",
+        model.getTransactions().size(),
+        model.computeTransactionsTotalCost());
   }
 
   // Other view methods

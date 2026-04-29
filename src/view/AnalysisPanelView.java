@@ -53,6 +53,8 @@ public class AnalysisPanelView extends JPanel
 		for (int i = 0; i < timeWindows.length; i++) {
 			this.timeWindowChooser.addItem(timeWindows[i]);
 		}
+		this.timeWindowChooser.addActionListener(e ->
+			Logger.debug("Analysis time window changed selection={}", this.timeWindowChooser.getSelectedItem()));
 		inputPanel.add(this.timeWindowChooser);
 		this.analyzeButton = new JButton("Analyze");
 		inputPanel.add(this.analyzeButton);
