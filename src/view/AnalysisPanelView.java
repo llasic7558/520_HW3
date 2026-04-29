@@ -17,6 +17,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.tinylog.Logger;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.CategorySeries;
@@ -162,9 +163,15 @@ public class AnalysisPanelView extends JPanel
 	 * @param model Represents the model's current state
 	 */
 	public void performDataAnalysis(ExpenseTrackerModel model) {
+		Logger.debug(
+			"Analyze requested timeWindow={} transactionCount={}",
+			this.timeWindowChooser.getSelectedItem(),
+			model.getTransactions().size()
+		);
 		if (model.getTransactions().isEmpty()) {
 			this.messageLabel.setText(NO_TRANSACTIONS_ERROR_MESSAGE);
 			this.messageLabel.setVisible(true);
+			Logger.warn("Analyze failed because the model had no transactions");
 		}
 		else {
 			this.messageLabel.setText("");
@@ -176,13 +183,24 @@ public class AnalysisPanelView extends JPanel
 			CategoryChart categoryChart = this.createCategoryChart(model);
 			if (categoryChart == null) {
 				this.messageLabel.setText(NO_TRANSACTIONS_ERROR_MESSAGE);
-				this.messageLabel.setVisible(true);				
+				this.messageLabel.setVisible(true);
+				Logger.warn(
+					"Analyze found no transactions in timeWindow={}",
+					this.timeWindowChooser.getSelectedItem()
+				);
 			}
 			else {
 				this.chartPanel = new XChartPanel<>(categoryChart);
 				this.dataVizPanel.add(this.chartPanel, BorderLayout.CENTER);
 				this.dataVizPanel.revalidate();
 				this.dataVizPanel.repaint();
+				CategorySeries categorySeries = categoryChart.getSeriesMap().get(CHART_TITLE);
+				int displayedCategoryCount = categorySeries.getXData().size();
+				Logger.info(
+					"Analyze completed timeWindow={} displayedCategoryCount={}",
+					this.timeWindowChooser.getSelectedItem(),
+					displayedCategoryCount
+				);
 			}
 		}
 	}

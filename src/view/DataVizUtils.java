@@ -8,6 +8,8 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.tinylog.Logger;
+
 import model.ExpenseTrackerModel;
 import model.Transaction;
 
@@ -73,9 +75,25 @@ public class DataVizUtils
 					currentCategorySummary = new ExpenseTrackerModel();
 					categorySummaries.put(currentCategory, currentCategorySummary);
 				}
-				currentCategorySummary.addTransaction(currentTransaction);
+				currentCategorySummary.getTransactions().add(currentTransaction);
 			}	
 		}
+
+		StringBuilder summaryBuilder = new StringBuilder();
+		for (Map.Entry<String, ExpenseTrackerModel> entry : categorySummaries.entrySet()) {
+			if (summaryBuilder.length() > 0) {
+				summaryBuilder.append(", ");
+			}
+			summaryBuilder.append(entry.getKey());
+			summaryBuilder.append("=");
+			summaryBuilder.append(entry.getValue().computeTransactionsTotalCost());
+		}
+		Logger.debug(
+			"Computed category summary timeWindow={} categoryCount={} summary={}",
+			DataAnalysisTimeWindow.values()[timeWindowOrdinal].getHumanReadableName(),
+			categorySummaries.size(),
+			summaryBuilder.toString()
+		);
 		
 		return Collections.unmodifiableMap(categorySummaries);
 	}
