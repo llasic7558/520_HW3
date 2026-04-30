@@ -78,7 +78,11 @@ public class ExpenseTrackerView extends JFrame {
     dataPanelView = new DataPanelView();
     analysisPanelView = new AnalysisPanelView();
     tabbedPanel.add("Data", dataPanelView);
-    tabbedPanel.add("Analyis", analysisPanelView);
+    tabbedPanel.add("Analysis", analysisPanelView);
+    // a11y: name and describe the tab strip
+    tabbedPanel.getAccessibleContext().setAccessibleName("Expense Tracker sections");
+    tabbedPanel.getAccessibleContext().setAccessibleDescription(
+        "Switch between entering transactions and reviewing category charts.");
     tabbedPanel.addChangeListener(e ->
         Logger.debug("Tab changed selectedIndex={}", tabbedPanel.getSelectedIndex()));
     add(tabbedPanel);
