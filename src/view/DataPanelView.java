@@ -35,16 +35,33 @@ public class DataPanelView extends JPanel {
 	    
 	    addTransactionBtn = new JButton("Add Transaction");
 
-	    // Create UI components
+	    // ui components
 	    JLabel amountLabel = new JLabel("Amount:");
 	    amountField = new JTextField(10);
-	    
+	    // link label to field for screen readers
+	    amountLabel.setLabelFor(amountField);
+
 	    JLabel categoryLabel = new JLabel("Category:");
 	    categoryField = new JTextField(10);
+	    categoryLabel.setLabelFor(categoryField);
+
+	    // short descriptions help screen readers tell what each field is for
+	    amountField.getAccessibleContext().setAccessibleDescription(
+	    		"Enter the transaction amount using digits and decimal point.");
+	    categoryField.getAccessibleContext().setAccessibleDescription(
+	    		"Enter a valid expense category text, for example food or travel.");
+
 	    transactionsTable = new JTable(transactionsModel);
 	    transactionsTable.setDefaultEditor(Object.class, null);
 	    transactionsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	    
+	    // table + button accessible names so readers announce them clearly
+	    transactionsTable.getAccessibleContext().setAccessibleName("Transactions");
+	    transactionsTable.getAccessibleContext().setAccessibleDescription(
+	    		"Table listing each serial, amount, category, and date. Last row is the total.");
+	    addTransactionBtn.getAccessibleContext().setAccessibleName("Add transaction");
+	    addTransactionBtn.getAccessibleContext().setAccessibleDescription(
+	    		"Saves an expense using the Amount and Category fields and refreshes the table.");
+
 	    setLayout(new BorderLayout());
 	    JPanel addTransactionPanel = new JPanel();
 	    JPanel inputPanel = new JPanel();
@@ -61,7 +78,12 @@ public class DataPanelView extends JPanel {
 	  
 	    // Add panels to frame
 	    add(addTransactionPanel, BorderLayout.NORTH);
-	    add(new JScrollPane(transactionsTable), BorderLayout.CENTER); 
+	    // wrap table in scroll pane and label it for assistive tech
+	    JScrollPane tableScrollPane = new JScrollPane(transactionsTable);
+	    tableScrollPane.getAccessibleContext().setAccessibleName("Transactions table");
+	    tableScrollPane.getAccessibleContext().setAccessibleDescription(
+	    		"Scrollable list of saved expense rows including the total.");
+	    add(tableScrollPane, BorderLayout.CENTER);
 	}
  	
 	public JTable getTransactionsTable() {
