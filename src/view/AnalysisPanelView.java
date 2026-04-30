@@ -58,6 +58,14 @@ public class AnalysisPanelView extends JPanel
 		inputPanel.add(this.timeWindowChooser);
 		this.analyzeButton = new JButton("Analyze");
 		inputPanel.add(this.analyzeButton);
+		// a11y: name/describe the controls so screen readers announce them
+		this.timeWindowChooser.getAccessibleContext().setAccessibleName("Analysis time window");
+		this.timeWindowChooser.getAccessibleContext().setAccessibleDescription(
+				"Choose All, Last week, or Last year before running analysis.");
+		this.analyzeButton.getAccessibleContext().setAccessibleName("Analyze");
+		this.analyzeButton.getAccessibleContext().setAccessibleDescription(
+				"Builds or refreshes the bar chart of totals per category for the selected window.");
+		this.dataVizPanel.getAccessibleContext().setAccessibleName("Analysis layout");
 		this.dataVizPanel.add(inputPanel);
 		
 		JPanel messagePanel = new JPanel();
@@ -65,6 +73,10 @@ public class AnalysisPanelView extends JPanel
 		this.messageLabel = new JLabel("");
 		this.messageLabel.setForeground(Color.red);
 		this.messageLabel.setVisible(false);
+		// a11y: when shown the message tells the user why the chart is missing
+		this.messageLabel.getAccessibleContext().setAccessibleName("Analysis message");
+		this.messageLabel.getAccessibleContext().setAccessibleDescription(
+				"When visible, announces why the chart cannot be drawn for the chosen window.");
 		messagePanel.add(this.messageLabel);
 		
 		setLayout(new BorderLayout());
@@ -193,6 +205,10 @@ public class AnalysisPanelView extends JPanel
 			}
 			else {
 				this.chartPanel = new XChartPanel<>(categoryChart);
+				// a11y: name + describe the chart so screen readers know what it is
+				this.chartPanel.getAccessibleContext().setAccessibleName(CHART_TITLE);
+				this.chartPanel.getAccessibleContext().setAccessibleDescription(
+						"Bar chart showing summed costs for food, travel, bills, entertainment, and other categories.");
 				this.dataVizPanel.add(this.chartPanel, BorderLayout.CENTER);
 				this.dataVizPanel.revalidate();
 				this.dataVizPanel.repaint();
