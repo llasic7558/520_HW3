@@ -86,3 +86,23 @@ The Expense Tracker application applies the MVC architecture pattern as follows:
   In that tab, select the analysis time window (e.g., 'Last week')
   In the tab, click the 'Analyze' button
   If there are transactions in that time window, displays the analysis results. If not, displays an error message.
+
+# New Functionality
+
+This submission adds two pieces beyond the starter:
+
+## Logging (Tinylog)
+
+Tinylog is wired into the controller, model, and view via direct `org.tinylog.Logger` calls so user actions, model updates, and analysis runs are traced at runtime. The library jars live in `lib/` and the build classpath in `build.xml` already references them. Output goes to the console; you can also pipe it to a file (e.g. `... ExpenseTrackerApp > expense-tracker.log 2>&1`) when generating the log for the usage scenario.
+
+## Analysis tab label
+
+The tab title was previously `Analyis`; it has been corrected to `Analysis`.
+
+## Accessibility (screen reader homework)
+
+Following Oracle's Swing accessibility tutorial (https://docs.oracle.com/javase/tutorial/uiswing/misc/access.html) the UI now exposes clearer roles to assistive APIs:
+
+- **Data tab:** `JLabel.setLabelFor` links the `Amount` and `Category` labels to their text fields. The transactions `JTable`, its wrapping `JScrollPane`, the **Add transaction** button, and both text fields have accessible names and short descriptions.
+- **Analysis tab:** The time-window combo box, the **Analyze** button, the analysis message label, and the data viz panel all have accessible names/descriptions. The `XChartPanel` chart receives an accessible name (`CHART_TITLE`) and a description after it is created in `performDataAnalysis`.
+- **Window chrome:** The `JTabbedPane` has an accessible name and description so the screen reader announces the tab strip.
