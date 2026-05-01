@@ -1,0 +1,9 @@
+# build output
+bin/
+build/
+jdoc/
+coverage_report/
+jacoco.exec
+
+# personal scratch for the written portion (kept out of version control)
+HW3_written.md
