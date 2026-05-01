@@ -1,0 +1,10 @@
+{
+  "java.project.sourcePaths": ["src", "test"],
+  "java.project.outputPath": "bin",
+  "java.project.referencedLibraries": [
+    "lib/xchart-3.8.8.jar",
+    "lib/tinylog-api-2.7.0.jar",
+    "lib/tinylog-impl-2.7.0.jar",
+    "lib/junit-4.11.jar"
+  ]
+}
