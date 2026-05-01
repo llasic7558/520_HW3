@@ -220,6 +220,9 @@ public class ExpenseTrackerTest {
 	  analysisPanelView.getAnalyzeButton().doClick();
 	  // Check the postconditions
 	  assertEquals(AnalysisPanelView.NO_TRANSACTIONS_ERROR_MESSAGE, analysisPanelView.getMessageLabelText());
+	  assertEquals(
+			  "Analysis could not be generated. " + AnalysisPanelView.NO_TRANSACTIONS_ERROR_MESSAGE,
+			  analysisPanelView.getAnalysisSummaryText());
 	  assertFalse(analysisPanelView.hasChartPanel());
   }
   
@@ -265,11 +268,14 @@ public class ExpenseTrackerTest {
 	  // Check the postconditions
 	  assertEquals("", analysisPanelView.getMessageLabelText());
 	  assertTrue(analysisPanelView.hasChartPanel());
+	  String summaryText = analysisPanelView.getAnalysisSummaryText();
+	  assertTrue(summaryText.startsWith("Analysis results for"));
 	  Map<String,Double> chartDataModel = analysisPanelView.getChartDataModel();
 	  for (String currentCategory : chartDataModel.keySet()) {
 		  double expectedTotalCost = computeTotalCostPerCategory(controller.getModel(), currentCategory);
 		  double actualTotalCost = chartDataModel.get(currentCategory);
 		  assertEquals(expectedTotalCost, actualTotalCost, 0.01);
+		  assertTrue(summaryText.contains(currentCategory + ": " + actualTotalCost));
 	  }
   }
 }
