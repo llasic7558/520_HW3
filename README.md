@@ -101,8 +101,9 @@ The tab title was previously `Analyis`; it has been corrected to `Analysis`.
 
 ## Accessibility (screen reader homework)
 
-Following Oracle's Swing accessibility tutorial (https://docs.oracle.com/javase/tutorial/uiswing/misc/access.html) the UI now exposes clearer roles to assistive APIs:
+Following Oracle's Swing accessibility tutorial (https://docs.oracle.com/javase/tutorial/uiswing/misc/access.html), the UI now exposes clearer roles to assistive APIs:
 
-- **Data tab:** `JLabel.setLabelFor` links the `Amount` and `Category` labels to their text fields. The transactions `JTable`, its wrapping `JScrollPane`, the **Add transaction** button, and both text fields have accessible names and short descriptions.
-- **Analysis tab:** The time-window combo box, the **Analyze** button, the analysis message label, and the data viz panel all have accessible names/descriptions. The `XChartPanel` chart receives an accessible name (`CHART_TITLE`) and a description after it is created in `performDataAnalysis`.
-- **Window chrome:** The `JTabbedPane` has an accessible name and description so the screen reader announces the tab strip.
+- **Data tab:** `JLabel.setLabelFor` links the `Amount` and `Category` labels to their text fields. The transactions `JTable`, its wrapping `JScrollPane`, the **Add Transaction** button, and both text fields have accessible names and descriptions.
+- **Analysis tab:** A visible `Time window:` label is linked to the combo box, the **Analyze** button has accessible metadata, and analysis results are now mirrored into a plain-text summary area. This text summary is the primary screen-reader-friendly output for the analysis workflow, especially on macOS VoiceOver.
+- **Chart behavior on macOS:** The bar chart still receives an accessible name and description, but it is rendered through `XChartPanel` (a custom Swing component). On macOS, VoiceOver may not read that chart content in a useful way even when accessibility metadata is present, so the text summary should be treated as the authoritative accessible representation of the analysis results.
+- **Window chrome:** The `JTabbedPane` has an accessible name and description so the screen reader can identify the tab strip.
