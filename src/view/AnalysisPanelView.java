@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import org.tinylog.Logger;
 import org.knowm.xchart.CategoryChart;
@@ -37,10 +38,13 @@ public class AnalysisPanelView extends JPanel
 	public static final String CHART_X_AXIS_TITLE = "Category";
 	public static final String CHART_Y_AXIS_TITLE = "Total Cost";
 	public static final String CHART_TITLE = CHART_Y_AXIS_TITLE + " per " + CHART_X_AXIS_TITLE;
+	public static final String DEFAULT_ANALYSIS_SUMMARY_MESSAGE =
+			"Run Analyze to generate a text summary and chart for the selected time window.";
 	private JPanel dataVizPanel;
 	private JComboBox<DataAnalysisTimeWindow> timeWindowChooser;
 	private JButton analyzeButton;
 	private XChartPanel<CategoryChart> chartPanel;
+	private JTextArea analysisSummaryArea;
 	
 	public AnalysisPanelView() {
 		super();
@@ -48,13 +52,16 @@ public class AnalysisPanelView extends JPanel
 		this.dataVizPanel = new JPanel();
 		this.dataVizPanel.setLayout(new BoxLayout(this.dataVizPanel, BoxLayout.Y_AXIS));
 		JPanel inputPanel = new JPanel();
+		JLabel timeWindowLabel = new JLabel("Time window:");
 		this.timeWindowChooser = new JComboBox<DataAnalysisTimeWindow>();
 		DataAnalysisTimeWindow[] timeWindows = DataAnalysisTimeWindow.values();
 		for (int i = 0; i < timeWindows.length; i++) {
 			this.timeWindowChooser.addItem(timeWindows[i]);
 		}
+		timeWindowLabel.setLabelFor(this.timeWindowChooser);
 		this.timeWindowChooser.addActionListener(e ->
 			Logger.debug("Analysis time window changed selection={}", this.timeWindowChooser.getSelectedItem()));
+		inputPanel.add(timeWindowLabel);
 		inputPanel.add(this.timeWindowChooser);
 		this.analyzeButton = new JButton("Analyze");
 		inputPanel.add(this.analyzeButton);
@@ -67,6 +74,17 @@ public class AnalysisPanelView extends JPanel
 				"Builds or refreshes the bar chart of totals per category for the selected window.");
 		this.dataVizPanel.getAccessibleContext().setAccessibleName("Analysis layout");
 		this.dataVizPanel.add(inputPanel);
+		this.analysisSummaryArea = new JTextArea(4, 48);
+		this.analysisSummaryArea.setEditable(false);
+		this.analysisSummaryArea.setLineWrap(true);
+		this.analysisSummaryArea.setWrapStyleWord(true);
+		this.analysisSummaryArea.setOpaque(false);
+		this.analysisSummaryArea.setFocusable(true);
+		this.analysisSummaryArea.getAccessibleContext().setAccessibleName("Analysis summary");
+		this.analysisSummaryArea.getAccessibleContext().setAccessibleDescription(
+				"Text summary of the selected analysis results for screen readers.");
+		this.analysisSummaryArea.setText(DEFAULT_ANALYSIS_SUMMARY_MESSAGE);
+		this.dataVizPanel.add(this.analysisSummaryArea);
 		
 		JPanel messagePanel = new JPanel();
 		messagePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -96,6 +114,41 @@ public class AnalysisPanelView extends JPanel
 	public boolean hasChartPanel() {
 		// For testing purposes
 		return (this.chartPanel != null);
+	}
+
+	public String getAnalysisSummaryText() {
+		// For testing purposes
+		return this.analysisSummaryArea.getText();
+	}
+
+	private void setAnalysisSummaryText(String summaryText) {
+		this.analysisSummaryArea.setText(summaryText);
+		this.analysisSummaryArea.setCaretPosition(0);
+	}
+
+	private void focusAnalysisSummary() {
+		this.analysisSummaryArea.requestFocusInWindow();
+	}
+
+	private String buildAnalysisSummary(CategoryChart categoryChart) {
+		CategorySeries categorySeries = categoryChart.getSeriesMap().get(CHART_TITLE);
+		StringBuilder summaryBuilder = new StringBuilder();
+		summaryBuilder.append("Analysis results for ");
+		summaryBuilder.append(this.timeWindowChooser.getSelectedItem());
+		summaryBuilder.append(". ");
+		Iterator xDataItr = categorySeries.getXData().iterator();
+		Iterator yDataItr = categorySeries.getYData().iterator();
+		while (xDataItr.hasNext()) {
+			String currentCategory = (String)xDataItr.next();
+			Double currentCategoryTotalCost = (Double)yDataItr.next();
+			summaryBuilder.append(currentCategory);
+			summaryBuilder.append(": ");
+			summaryBuilder.append(currentCategoryTotalCost);
+			if (xDataItr.hasNext()) {
+				summaryBuilder.append(". ");
+			}
+		}
+		return summaryBuilder.toString();
 	}
 	
 	/**
@@ -185,6 +238,8 @@ public class AnalysisPanelView extends JPanel
 		if (model.getTransactions().isEmpty()) {
 			this.messageLabel.setText(NO_TRANSACTIONS_ERROR_MESSAGE);
 			this.messageLabel.setVisible(true);
+			this.setAnalysisSummaryText("Analysis could not be generated. " + NO_TRANSACTIONS_ERROR_MESSAGE);
+			this.focusAnalysisSummary();
 			Logger.warn("Analyze failed because the model had no transactions");
 		}
 		else {
@@ -198,6 +253,8 @@ public class AnalysisPanelView extends JPanel
 			if (categoryChart == null) {
 				this.messageLabel.setText(NO_TRANSACTIONS_ERROR_MESSAGE);
 				this.messageLabel.setVisible(true);
+				this.setAnalysisSummaryText("Analysis could not be generated. " + NO_TRANSACTIONS_ERROR_MESSAGE);
+				this.focusAnalysisSummary();
 				Logger.warn(
 					"Analyze found no transactions in timeWindow={}",
 					this.timeWindowChooser.getSelectedItem()
@@ -208,10 +265,12 @@ public class AnalysisPanelView extends JPanel
 				// a11y: name + describe the chart so screen readers know what it is
 				this.chartPanel.getAccessibleContext().setAccessibleName(CHART_TITLE);
 				this.chartPanel.getAccessibleContext().setAccessibleDescription(
-						"Bar chart showing summed costs for food, travel, bills, entertainment, and other categories.");
+						"Bar chart visualization of the analysis summary shown above.");
+				this.setAnalysisSummaryText(this.buildAnalysisSummary(categoryChart));
 				this.dataVizPanel.add(this.chartPanel, BorderLayout.CENTER);
 				this.dataVizPanel.revalidate();
 				this.dataVizPanel.repaint();
+				this.focusAnalysisSummary();
 				CategorySeries categorySeries = categoryChart.getSeriesMap().get(CHART_TITLE);
 				int displayedCategoryCount = categorySeries.getXData().size();
 				Logger.info(
@@ -232,8 +291,10 @@ public class AnalysisPanelView extends JPanel
 	public void setVisible(ExpenseTrackerModel model) {
 		this.messageLabel.setText("");
 		this.messageLabel.setVisible(false);
+		this.setAnalysisSummaryText(DEFAULT_ANALYSIS_SUMMARY_MESSAGE);
 		if (this.chartPanel != null) {
 			this.dataVizPanel.remove(this.chartPanel);
+			this.chartPanel = null;
 		}
 		this.dataVizPanel.revalidate();
 		this.dataVizPanel.repaint();
